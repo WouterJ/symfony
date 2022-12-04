@@ -755,6 +755,41 @@ class SecurityExtensionTest extends TestCase
         ];
     }
 
+    public function testUsingLdapAndNormalVariant()
+    {
+        $container = $this->getRawContainer();
+        /** @var SecurityExtension $extension */
+        $extension = $container->getExtension('security');
+
+        $container->loadFromExtension('security', [
+            'enable_authenticator_manager' => true,
+            'firewalls' => [
+                'main' => [
+                    'entry_point' => 'form_login_ldap',
+                    'form_login' => ['check_path' => 'login'],
+                    'form_login_ldap' => ['check_path' => 'login_ldap'],
+                ],
+            ],
+        ]);
+
+        $container->compile();
+
+        $authenticators = $container->getDefinition('security.authenticator.manager.main')->getArgument(0);
+        $this->assertCount(2, $authenticators);
+        foreach ($authenticators as $authenticator) {
+            $authenticatorId = (string) $authenticator;
+            $authenticatorDefinition = $container->getDefinition($authenticatorId);
+
+            if ($authenticatorId === 'security.authenticator.form_login.main') {
+                $this->assertEquals('login', $authenticatorDefinition->getArgument(4)['check_path'], 'Invalid form_login');
+            } elseif ($authenticatorId === 'security.authenticator.form_login_ldap.main') {
+                $this->assertEquals('login_ldap', $container->getDefinition($authenticatorDefinition->getArgument(0))->getArgument(4)['check_path'], 'Invalid form_login_ldap');
+            } else {
+                $this->fail('Unexpected authenticator service found: '.$authenticator);
+            }
+        }
+    }
+
     public function testCompilesWithoutSessionListenerWithStatelessFirewallWithAuthenticatorManager()
     {
         $container = $this->getRawContainer();

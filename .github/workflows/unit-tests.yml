@@ -278,7 +278,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::install phpunit"
-          ./phpunit install
+          php ./phpunit install
           echo "::endgroup::"
 
       - name: Run tests

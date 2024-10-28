@@ -284,30 +284,30 @@ jobs:
           iwr -outf php_redis-6.0.0-dev-8.2-ts-vs16-x86.zip https://github.com/symfony/binary-utils/releases/download/v0.1/php_redis-6.0.0-dev-8.2-ts-vs16-x86.zip
           7z x php_redis-6.0.0-dev-8.2-ts-vs16-x86.zip -y >nul
           cd ..
-          copy /Y php.ini-development php.ini-min
-          echo memory_limit=-1 >> php.ini-min
-          echo serialize_precision=-1 >> php.ini-min
-          echo max_execution_time=1200 >> php.ini-min
-          echo post_max_size=2047M >> php.ini-min
-          echo upload_max_filesize=2047M >> php.ini-min
-          echo date.timezone="America/Los_Angeles" >> php.ini-min
-          echo extension_dir=ext >> php.ini-min
-          echo extension=php_xsl.dll >> php.ini-min
-          echo extension=php_mbstring.dll >> php.ini-min
-          copy /Y php.ini-min php.ini-max
-          echo zend_extension=php_opcache.dll >> php.ini-max
-          echo opcache.enable_cli=1 >> php.ini-max
-          echo extension=php_openssl.dll >> php.ini-max
-          echo extension=php_apcu.dll >> php.ini-max
-          echo extension=php_igbinary.dll >> php.ini-max
-          echo extension=php_redis.dll >> php.ini-max
-          echo apc.enable_cli=1 >> php.ini-max
-          echo extension=php_intl.dll >> php.ini-max
-          echo extension=php_fileinfo.dll >> php.ini-max
-          echo extension=php_pdo_sqlite.dll >> php.ini-max
-          echo extension=php_curl.dll >> php.ini-max
-          echo extension=php_sodium.dll >> php.ini-max
-          copy /Y php.ini-max php.ini
+          Copy php.ini-development php.ini-min
+          "memory_limit=-1" >> php.ini-min
+          "serialize_precision=-1" >> php.ini-min
+          "max_execution_time=1200" >> php.ini-min
+          "post_max_size=2047M" >> php.ini-min
+          "upload_max_filesize=2047M" >> php.ini-min
+          "date.timezone=`"America/Los_Angeles`"" >> php.ini-min
+          "extension_dir=ext" >> php.ini-min
+          "extension=php_xsl.dll" >> php.ini-min
+          "extension=php_mbstring.dll" >> php.ini-min
+          Copy php.ini-min php.ini-max
+          "zend_extension=php_opcache.dll" >> php.ini-max
+          "opcache.enable_cli=1" >> php.ini-max
+          "extension=php_openssl.dll" >> php.ini-max
+          "extension=php_apcu.dll" >> php.ini-max
+          "extension=php_igbinary.dll" >> php.ini-max
+          "extension=php_redis.dll" >> php.ini-max
+          "apc.enable_cli=1" >> php.ini-max
+          "extension=php_intl.dll" >> php.ini-max
+          "extension=php_fileinfo.dll" >> php.ini-max
+          "extension=php_pdo_sqlite.dll" >> php.ini-max
+          "extension=php_curl.dll" >> php.ini-max
+          "extension=php_sodium.dll" >> php.ini-max
+          Copy php.ini-max php.ini
           cd c:\projects\symfony
           iwr -outf composer.phar https://getcomposer.org/download/latest-stable/composer.phar
           mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json

@@ -310,7 +310,7 @@ jobs:
           Copy php.ini-max php.ini
           cd D:\a\symfony\symfony
           iwr -outf composer.phar https://getcomposer.org/download/latest-stable/composer.phar
-          mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
+          mkdir %APPDATA%\Composer && Copy .github\composer-config.json %APPDATA%\Composer\config.json
 
       - name: Configure environment
         run: |

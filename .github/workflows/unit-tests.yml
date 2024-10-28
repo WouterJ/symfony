@@ -260,7 +260,6 @@ jobs:
     runs-on: windows-2022
 
     env:
-      PATH: 'c:\php;%PATH%'
       COMPOSER_NO_INTERACTION: '1'
       SYMFONY_DEPRECATIONS_HELPER: 'strict'
       ANSICON: '121x90 (121x90)'
@@ -275,6 +274,7 @@ jobs:
       - name: Setup PHP
         shell: pwsh
         run: |
+          $env:Path = 'c:\php;' + $env:Path
           mkdir c:\php && cd c:\php
           iwr -outf php-8.2.0-Win32-vs16-x86.zip https://github.com/symfony/binary-utils/releases/download/v0.1/php-8.2.0-Win32-vs16-x86.zip
           7z x php-8.2.0-Win32-vs16-x86.zip -y >nul
@@ -325,6 +325,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          SET PATH=c:\php;%PATH%
           echo "::group::composer update"
           php composer.phar update --no-progress --ansi
           echo "::endgroup::"
@@ -339,6 +340,7 @@ jobs:
 
       - name: Run tests
         run: |
+          SET PATH=c:\php;%PATH%
           SET X=0
           SET SYMFONY_PHPUNIT_SKIPPED_TESTS=phpunit.skipped
           copy /Y c:\php\php.ini-min c:\php\php.ini
@@ -351,4 +353,4 @@ jobs:
           php phpunit src\Symfony\Component\HttpClient || SET X=!errorlevel!
           exit %X%
         env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

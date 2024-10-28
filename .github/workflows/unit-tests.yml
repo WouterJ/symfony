@@ -308,7 +308,7 @@ jobs:
           "extension=php_curl.dll" >> php.ini-max
           "extension=php_sodium.dll" >> php.ini-max
           Copy php.ini-max php.ini
-          cd c:\projects\symfony
+          cd D:\a\symfony\symfony
           iwr -outf composer.phar https://getcomposer.org/download/latest-stable/composer.phar
           mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
 

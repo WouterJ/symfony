@@ -327,8 +327,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo $env:SYMFONY_VERSION >> $env:GITHUB_OUTPUT
-          echo $env:COMPOSER_ROOT_VERSION >> $env:GITHUB_OUTPUT
+          php -r 'var_dump($_SERVER);'
 
           $env:Path = 'c:\php;' + $env:Path
           echo "::group::composer update" >> $env:GITHUB_OUTPUT

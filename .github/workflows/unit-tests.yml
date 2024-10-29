@@ -312,18 +312,19 @@ jobs:
           mkdir %APPDATA%\Composer && Copy .github\composer-config.json %APPDATA%\Composer\config.json
 
       - name: Configure environment
-        shell: cmd # todo: rewrite the parsing of Symfony version to powershell
         run: |
-          SET PATH=c:\php;%PATH%
+          $env:Path = 'c:\php;' + $env:Path
           git config --global user.email ""
           git config --global user.name "Symfony"
           git config --global init.defaultBranch main
           git config --global advice.detachedHead false
 
-          FOR /F "tokens=* USEBACKQ" %%F IN (`bash -c "grep ' VERSION = ' src/Symfony/Component/HttpKernel/Kernel.php | grep -o '[0-9][0-9]*\.[0-9]'"`) DO (SET SYMFONY_VERSION=%%F)
+          
+          $env:SYMFONY_VERSION = ((Select-String -Path src\Symfony\Component\HttpKernel\Kernel.php -Raw -Pattern ' VERSION = ' | Select-String -Pattern '[0-9][0-9]*\.[0-9]')[0].Matches.Value)
+          echo $env:$SYMFONY_VERSION
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
-          echo SYMFONY_VERSION=$SYMFONY_VERSION >> $GITHUB_ENV
-          echo COMPOSER_ROOT_VERSION=$SYMFONY_VERSION.x-dev >> $GITHUB_ENV
+          echo "SYMFONY_VERSION=" + $env:SYMFONY_VERSION >> $env:GITHUB_ENV
+          echo "COMPOSER_ROOT_VERSION=" + $env:SYMFONY_VERSION.x-dev >> $env:GITHUB_ENV
 
       - name: Install dependencies
         run: |

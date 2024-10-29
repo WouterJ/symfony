@@ -327,10 +327,21 @@ jobs:
 
       - name: Install dependencies
         run: |
+          $env:SYMFONY_VERSION >> $env:GITHUB_OUTPUT
+          $env:COMPOSER_ROOT_VERSION >> $env:GITHUB_OUTPUT
+
           $env:Path = 'c:\php;' + $env:Path
+          "::group::composer update" >> $env:GITHUB_OUTPUT
           php composer.phar update --no-progress --ansi
+          "::endgroup::" >> $env:GITHUB_OUTPUT
+
+          "::group::phpunit install" >> $env:GITHUB_OUTPUT
           php phpunit install
+          "::endgroup::" >> $env:GITHUB_OUTPUT
+
+          "::group::memurai-developer install" >> $env:GITHUB_OUTPUT
           choco install memurai-developer
+          "::endgroup::" >> $env:GITHUB_OUTPUT
 
       - name: Run tests
         run: |

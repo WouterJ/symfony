@@ -322,22 +322,15 @@ jobs:
           FOR /F "tokens=* USEBACKQ" %%F IN (`bash -c "grep ' VERSION = ' src/Symfony/Component/HttpKernel/Kernel.php | grep -o '[0-9][0-9]*\.[0-9]'"`) DO (SET SYMFONY_VERSION=%%F)
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
           SET COMPOSER_ROOT_VERSION=%SYMFONY_VERSION%.x-dev
-          echo %SYMFONY_VERSION%
 
       - name: Install dependencies
         run: |
+          echo %SYMFONY_VERSION%
+          echo %COMPOSER_ROOT_VERSION%
           SET PATH=c:\php;%PATH%
-          echo "::group::composer update"
           php composer.phar update --no-progress --ansi
-          echo "::endgroup::"
-
-          echo "::group::install phpunit"
           php phpunit install
-          echo "::endgroup::"
-
-          echo "::group::install memurai-developer"
           choco install memurai-developer
-          echo "::endgroup::"
 
       - name: Run tests
         run: |

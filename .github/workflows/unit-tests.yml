@@ -254,7 +254,8 @@ jobs:
     name: Windows
 
     defaults:
-      run: cmd
+      run:
+        shell: cmd
 
     runs-on: windows-2022
 

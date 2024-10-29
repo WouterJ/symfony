@@ -255,7 +255,7 @@ jobs:
 
     defaults:
       run:
-        shell: cmd
+        shell: pwsh
 
     runs-on: windows-2022
 
@@ -272,7 +272,6 @@ jobs:
           fetch-depth: 2
 
       - name: Setup PHP
-        shell: pwsh
         run: |
           $env:Path = 'c:\php;' + $env:Path
           mkdir c:\php && cd c:\php
@@ -313,7 +312,9 @@ jobs:
           mkdir %APPDATA%\Composer && Copy .github\composer-config.json %APPDATA%\Composer\config.json
 
       - name: Configure environment
+        shell: cmd # todo: rewrite the parsing of Symfony version to powershell
         run: |
+          $env:Path = 'c:\php;' + $env:Path
           git config --global user.email ""
           git config --global user.name "Symfony"
           git config --global init.defaultBranch main
@@ -326,24 +327,29 @@ jobs:
 
       - name: Install dependencies
         run: |
-          SET PATH=c:\php;%PATH%
+          $env:Path = 'c:\php;' + $env:Path
           php composer.phar update --no-progress --ansi
           php phpunit install
           choco install memurai-developer
 
       - name: Run tests
         run: |
-          SET PATH=c:\php;%PATH%
-          SET X=0
-          SET SYMFONY_PHPUNIT_SKIPPED_TESTS=phpunit.skipped
-          copy /Y c:\php\php.ini-min c:\php\php.ini
-          IF %BRANCH_NAME:~-2% neq .x (rm -Rf src\Symfony\Bridge\PhpUnit)
+          $env:Path = 'c:\php;' + $env:Path
+          $env:X = 0
+          $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
+
+          if ($env:BRANCH_NAME -match '.x') { rm -Rf src\Symfony\Bridge\PhpUnit }
+
+          # minimal extensions
+          Copy c:\php\php.ini-min c:\php\php.ini
           mv src\Symfony\Component\HttpClient\phpunit.xml.dist src\Symfony\Component\HttpClient\phpunit.xml
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || SET X=!errorlevel!
-          php phpunit src\Symfony\Component\HttpClient || SET X=!errorlevel!
-          copy /Y c:\php\php.ini-max c:\php\php.ini
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || SET X=!errorlevel!
-          php phpunit src\Symfony\Component\HttpClient || SET X=!errorlevel!
-          exit %X%
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $env:X = $LASTEXITCODE
+          php phpunit src\Symfony\Component\HttpClient || $env:X = $LASTEXITCODE
+
+          # all extensions
+          Copy c:\php\php.ini-max c:\php\php.ini
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $env:X = $LASTEXITCODE
+          php phpunit src\Symfony\Component\HttpClient || $env:X = $LASTEXITCODE
+          exit $X
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

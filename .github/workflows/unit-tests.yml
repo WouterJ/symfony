@@ -314,7 +314,7 @@ jobs:
       - name: Configure environment
         shell: cmd # todo: rewrite the parsing of Symfony version to powershell
         run: |
-          $env:Path = 'c:\php;' + $env:Path
+          SET PATH=c:\php;%PATH%
           git config --global user.email ""
           git config --global user.name "Symfony"
           git config --global init.defaultBranch main
@@ -327,21 +327,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          $env:SYMFONY_VERSION >> $env:GITHUB_OUTPUT
-          $env:COMPOSER_ROOT_VERSION >> $env:GITHUB_OUTPUT
+          echo $env:SYMFONY_VERSION >> $env:GITHUB_OUTPUT
+          echo $env:COMPOSER_ROOT_VERSION >> $env:GITHUB_OUTPUT
 
           $env:Path = 'c:\php;' + $env:Path
-          "::group::composer update" >> $env:GITHUB_OUTPUT
+          echo "::group::composer update" >> $env:GITHUB_OUTPUT
           php composer.phar update --no-progress --ansi
-          "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::" >> $env:GITHUB_OUTPUT
 
-          "::group::phpunit install" >> $env:GITHUB_OUTPUT
+          echo "::group::phpunit install" >> $env:GITHUB_OUTPUT
           php phpunit install
-          "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::" >> $env:GITHUB_OUTPUT
 
-          "::group::memurai-developer install" >> $env:GITHUB_OUTPUT
+          echo "::group::memurai-developer install" >> $env:GITHUB_OUTPUT
           choco install memurai-developer
-          "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::" >> $env:GITHUB_OUTPUT
 
       - name: Run tests
         run: |

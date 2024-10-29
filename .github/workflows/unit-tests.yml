@@ -322,17 +322,17 @@ jobs:
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
           SET COMPOSER_ROOT_VERSION=%SYMFONY_VERSION%.x-dev
 
-          echo "::group::composer update"
+          echo ::group::composer update
           php composer.phar update --no-progress --ansi
-          echo "::endgroup::"
+          echo ::endgroup::
 
-          echo "::group::phpunit install"
+          echo ::group::phpunit install
           php phpunit install
-          echo "::endgroup::"
+          echo ::endgroup::
 
-          echo "::group::memurai-developer install"
+          echo ::group::memurai-developer install
           choco install memurai-developer
-          echo "::endgroup::"
+          echo ::endgroup::
 
       - name: Run tests
         run: |
@@ -340,18 +340,15 @@ jobs:
           $env:X = 0
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
 
-          if ($env:BRANCH_NAME -match '.x') { rm -Rf src\Symfony\Bridge\PhpUnit }
-
           # minimal extensions
           Copy c:\php\php.ini-min c:\php\php.ini
           mv src\Symfony\Component\HttpClient\phpunit.xml.dist src\Symfony\Component\HttpClient\phpunit.xml
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $env:X = $LASTEXITCODE
-          php phpunit src\Symfony\Component\HttpClient || $env:X = $LASTEXITCODE
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows
+          php phpunit src\Symfony\Component\HttpClient
 
           # all extensions
           Copy c:\php\php.ini-max c:\php\php.ini
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $env:X = $LASTEXITCODE
-          php phpunit src\Symfony\Component\HttpClient || $env:X = $LASTEXITCODE
-          exit $X
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows
+          php phpunit src\Symfony\Component\HttpClient
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

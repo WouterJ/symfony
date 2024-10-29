@@ -327,9 +327,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          $env:Path = 'c:\php;' + $env:Path
           php -r 'var_dump($_SERVER);'
 
-          $env:Path = 'c:\php;' + $env:Path
           echo "::group::composer update" >> $env:GITHUB_OUTPUT
           php composer.phar update --no-progress --ansi
           echo "::endgroup::" >> $env:GITHUB_OUTPUT

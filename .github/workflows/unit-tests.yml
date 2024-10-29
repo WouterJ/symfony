@@ -321,7 +321,7 @@ jobs:
 
           
           $env:SYMFONY_VERSION = ((Select-String -Path src\Symfony\Component\HttpKernel\Kernel.php -Raw -Pattern ' VERSION = ' | Select-String -Pattern '[0-9][0-9]*\.[0-9]')[0].Matches.Value)
-          echo $env:$SYMFONY_VERSION
+          echo $env:SYMFONY_VERSION
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
           echo "SYMFONY_VERSION=" + $env:SYMFONY_VERSION >> $env:GITHUB_ENV
           echo "COMPOSER_ROOT_VERSION=" + $env:SYMFONY_VERSION.x-dev >> $env:GITHUB_ENV

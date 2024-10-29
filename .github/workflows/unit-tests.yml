@@ -311,37 +311,28 @@ jobs:
           iwr -outf composer.phar https://getcomposer.org/download/latest-stable/composer.phar
           mkdir %APPDATA%\Composer && Copy .github\composer-config.json %APPDATA%\Composer\config.json
 
-      - name: Configure environment
+      - name: Install dependencies
+        shell: cmd
         run: |
-          $env:Path = 'c:\php;' + $env:Path
+          SET PATH=c:\php;%PATH%
+          mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
           git config --global user.email ""
           git config --global user.name "Symfony"
-          git config --global init.defaultBranch main
-          git config --global advice.detachedHead false
-
-          
-          $env:SYMFONY_VERSION = ((Select-String -Path src\Symfony\Component\HttpKernel\Kernel.php -Raw -Pattern ' VERSION = ' | Select-String -Pattern '[0-9][0-9]*\.[0-9]')[0].Matches.Value)
-          echo $env:SYMFONY_VERSION
+          FOR /F "tokens=* USEBACKQ" %%F IN (`bash -c "grep ' VERSION = ' src/Symfony/Component/HttpKernel/Kernel.php | grep -o '[0-9][0-9]*\.[0-9]'"`) DO (SET SYMFONY_VERSION=%%F)
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
-          echo "SYMFONY_VERSION=" + $env:SYMFONY_VERSION >> $env:GITHUB_ENV
-          echo "COMPOSER_ROOT_VERSION=" + $env:SYMFONY_VERSION.x-dev >> $env:GITHUB_ENV
+          SET COMPOSER_ROOT_VERSION=%SYMFONY_VERSION%.x-dev
 
-      - name: Install dependencies
-        run: |
-          $env:Path = 'c:\php;' + $env:Path
-          php -r 'var_dump($_SERVER);'
-
-          echo "::group::composer update" >> $env:GITHUB_OUTPUT
+          echo "::group::composer update"
           php composer.phar update --no-progress --ansi
-          echo "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::"
 
-          echo "::group::phpunit install" >> $env:GITHUB_OUTPUT
+          echo "::group::phpunit install"
           php phpunit install
-          echo "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::"
 
-          echo "::group::memurai-developer install" >> $env:GITHUB_OUTPUT
+          echo "::group::memurai-developer install"
           choco install memurai-developer
-          echo "::endgroup::" >> $env:GITHUB_OUTPUT
+          echo "::endgroup::"
 
       - name: Run tests
         run: |

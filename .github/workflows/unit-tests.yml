@@ -268,6 +268,12 @@ jobs:
       SYMFONY_PHPUNIT_DISABLE_RESULT_CACHE: '1'
 
     steps:
+      - name: Setup Git
+        run: |
+          git config --global core.autocrlf false
+          git config --global user.email ""
+          git config --global user.name "Symfony"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -319,8 +325,6 @@ jobs:
         run: |
           SET PATH=c:\php;%PATH%
           mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
-          git config --global user.email ""
-          git config --global user.name "Symfony"
           FOR /F "tokens=* USEBACKQ" %%F IN (`bash -c "grep ' VERSION = ' src/Symfony/Component/HttpKernel/Kernel.php | grep -o '[0-9][0-9]*\.[0-9]'"`) DO (SET SYMFONY_VERSION=%%F)
           php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
           SET COMPOSER_ROOT_VERSION=%SYMFONY_VERSION%.x-dev

@@ -315,6 +315,7 @@ jobs:
 
       - name: Install dependencies
         id: setup
+        shell: cmd
         run: |
           SET PATH=c:\php;%PATH%
           mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json

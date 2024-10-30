@@ -360,8 +360,8 @@ jobs:
           $x = 0
 
           Copy c:\php\php.ini-max c:\php\php.ini
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows -ErrorAction Stop
-          php phpunit src\Symfony\Component\HttpClient -ErrorAction Stop
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows
+          php phpunit src\Symfony\Component\HttpClient
 
           if ($Error) {
             throw "Test failures"

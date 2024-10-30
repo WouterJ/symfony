@@ -337,7 +337,6 @@ jobs:
       - name: Run tests
         run: |
           $env:Path = 'c:\php;' + $env:Path
-          $env:X = 0
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
 
           # minimal extensions
@@ -351,7 +350,7 @@ jobs:
           php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows
           php phpunit src\Symfony\Component\HttpClient
 
-          if ($Error.Count) {
+          if ($Error) {
             throw "Test failures"
           }
 

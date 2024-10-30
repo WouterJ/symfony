@@ -257,7 +257,7 @@ jobs:
 
     defaults:
       run:
-        shell: cmd
+        shell: pwsh
 
     runs-on: windows-2022
 
@@ -274,7 +274,6 @@ jobs:
           fetch-depth: 2
 
       - name: Setup PHP
-        shell: pwsh
         run: |
           $env:Path = 'c:\php;' + $env:Path
           mkdir c:\php && cd c:\php
@@ -342,14 +341,13 @@ jobs:
         run: |
           $env:Path = 'c:\php;' + $env:Path
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
-          $x = 0
 
           Copy c:\php\php.ini-min c:\php\php.ini
           mv src\Symfony\Component\HttpClient\phpunit.xml.dist src\Symfony\Component\HttpClient\phpunit.xml
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $x = $LASTEXITCODE
-          php phpunit src\Symfony\Component\HttpClient || $x = $LASTEXITCODE
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows
+          php phpunit src\Symfony\Component\HttpClient
 
-          if ($x -ne 0) {
+          if ($Error) {
             throw "Test failures"
           }
 
@@ -361,10 +359,9 @@ jobs:
           $x = 0
 
           Copy c:\php\php.ini-max c:\php\php.ini
-          mv src\Symfony\Component\HttpClient\phpunit.xml.dist src\Symfony\Component\HttpClient\phpunit.xml
-          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows -ErrorAction Stop || $x = $LASTEXITCODE
-          php phpunit src\Symfony\Component\HttpClient -ErrorAction Stop || $x = $LASTEXITCODE
+          php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows -ErrorAction Stop
+          php phpunit src\Symfony\Component\HttpClient -ErrorAction Stop
 
-          if ($x -ne 0) {
+          if ($Error) {
             throw "Test failures"
           }

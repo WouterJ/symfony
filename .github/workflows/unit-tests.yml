@@ -315,6 +315,7 @@ jobs:
           mkdir %APPDATA%\Composer && Copy .github\composer-config.json %APPDATA%\Composer\config.json
 
       - name: Install dependencies
+        id: setup
         run: |
           SET PATH=c:\php;%PATH%
           mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
@@ -337,6 +338,7 @@ jobs:
           echo ::endgroup::
 
       - name: Run tests (minimal extensions)
+        if: always() && steps.setup.outcome == 'success'
         run: |
           $env:Path = 'c:\php;' + $env:Path
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
@@ -347,9 +349,12 @@ jobs:
           php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows || $x = $LASTEXITCODE
           php phpunit src\Symfony\Component\HttpClient || $x = $LASTEXITCODE
 
-          exit $x
+          if ($x -ne 0) {
+            throw "Test failures"
+          }
 
       - name: Run tests
+        if: always() && steps.setup.outcome == 'success'
         run: |
           $env:Path = 'c:\php;' + $env:Path
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
@@ -360,4 +365,6 @@ jobs:
           php phpunit src\Symfony --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows -ErrorAction Stop || $x = $LASTEXITCODE
           php phpunit src\Symfony\Component\HttpClient -ErrorAction Stop || $x = $LASTEXITCODE
 
-          exit $x
+          if ($x -ne 0) {
+            throw "Test failures"
+          }

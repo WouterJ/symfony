@@ -321,13 +321,16 @@ jobs:
 
       - name: Install dependencies
         id: setup
-        shell: cmd
         run: |
-          SET PATH=c:\php;%PATH%
-          mkdir %APPDATA%\Composer && copy /Y .github\composer-config.json %APPDATA%\Composer\config.json
-          FOR /F "tokens=* USEBACKQ" %%F IN (`bash -c "grep ' VERSION = ' src/Symfony/Component/HttpKernel/Kernel.php | grep -o '[0-9][0-9]*\.[0-9]'"`) DO (SET SYMFONY_VERSION=%%F)
-          php .github/build-packages.php HEAD^ %SYMFONY_VERSION% src\Symfony\Bridge\PhpUnit
-          SET COMPOSER_ROOT_VERSION=%SYMFONY_VERSION%.x-dev
+          $env:Path = 'c:\php;' + $env:Path
+          mkdir $env:APPDATA\Composer && Copy .github\composer-config.json $env:APPDATA\Composer\config.json
+
+          $env:SYMFONY_VERSION=(Select-String -CaseSensitive -Pattern " VERSION =" -SimpleMatch -Path src/Symfony/Component/HttpKernel/Kernel.php | Select Line | Select-String -Pattern "([0-9][0-9]*\.[0-9])").Matches.Value
+          $env:COMPOSER_ROOT_VERSION=$env:SYMFONY_VERSION + ".x-dev"
+
+          echo $env:COMPOSER_ROOT_VERSION
+
+          php .github/build-packages.php HEAD^ $env:SYMFONY_VERSION src\Symfony\Bridge\PhpUnit
 
           echo ::group::composer update
           php composer.phar update --no-progress --ansi

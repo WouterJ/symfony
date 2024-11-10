@@ -15,6 +15,8 @@ jobs:
   windows:
     name: x86 / minimal-exts / lowest-php
 
+    timeout-minutes: 15
+
     defaults:
       run:
         shell: pwsh
@@ -75,7 +77,6 @@ jobs:
           "extension=php_sodium.dll" >> php.ini-max
           Copy php.ini-max php.ini
           cd ${{ github.workspace }}
-          iwr -outf composer.phar https://getcomposer.org/download/latest-stable/composer.phar
 
       - name: Install dependencies
         id: setup
@@ -87,7 +88,7 @@ jobs:
           $env:COMPOSER_ROOT_VERSION=$env:SYMFONY_VERSION + ".x-dev"
 
           php .github/build-packages.php HEAD^ $env:SYMFONY_VERSION src\Symfony\Bridge\PhpUnit
-          php composer.phar update --no-progress --ansi
+          composer update --no-progress --ansi
 
       - name: Install PHPUnit
         run: |
@@ -108,21 +109,54 @@ jobs:
 
           Copy c:\php\php.ini-min c:\php\php.ini
           Remove-Item -Path src\Symfony\Bridge\PhpUnit -Recurse
-          mv src\Symfony\Component\HttpClient\phpunit.xml.dist src\Symfony\Component\HttpClient\phpunit.xml
-          php phpunit src\Symfony --exclude-group tty,benchmark,intl-data,network,transient-on-windows || ($x = 1)
-          php phpunit src\Symfony\Component\HttpClient || ($x = 1)
 
-          exit $x
+          $COMPONENTS = (Get-ChildItem -Path src -Include phpunit.xml.dist -Recurse).Directory.FullName | Resolve-Path -Relative
+          $COMPONENTS | ForEach-Object {
+            echo ""
+            Get-Location
+
+            $cmd = "php phpunit --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows $_"
+            echo "+ $cmd"
+            $output = cmd /c $cmd
+            $ok = $LASTEXITCODE
+
+            if (!$ok -eq 0) {
+              echo $_
+              echo $output
+              echo "Job exited with: $ok"
+              Write-Error "KO $_"
+            } else {
+              #echo "::group::$_"
+              echo $_
+              echo $output
+              echo "OK $_"
+              #echo "::endgroup::"
+            }
+          }
 
       - name: Run tests
-        if: always() && steps.setup.outcome == 'success'
+        if: false && always() && steps.setup.outcome == 'success'
         run: |
           $env:Path = 'c:\php;' + $env:Path
           $env:SYMFONY_PHPUNIT_SKIPPED_TESTS = 'phpunit.skipped'
-          $x = 0
 
           Copy c:\php\php.ini-max c:\php\php.ini
-          php phpunit src\Symfony --exclude-group tty,benchmark,intl-data,network,transient-on-windows || ($x = 1)
-          php phpunit src\Symfony\Component\HttpClient || ($x = 1)
 
-          exit $x
+          $COMPONENTS = (Get-ChildItem -Path src -Include phpunit.xml.dist -Recurse).Directory.FullName | Resolve-Path -Relative
+          $COMPONENTS | ForEach-Object -Parallel {
+            $output = php phpunit --exclude-group tty --exclude-group benchmark --exclude-group intl-data --exclude-group network --exclude-group transient-on-windows $_
+            $ok = $LASTEXITCODE
+
+            if (!$ok -eq 0) {
+              echo $_
+              echo $output
+              echo "Job exited with: $ok"
+              Write-Error "KO $_"
+            } else {
+              #echo "::group::$_"
+              echo $_
+              echo $output
+              echo "OK $_"
+              #echo "::endgroup::"
+            }
+          }
